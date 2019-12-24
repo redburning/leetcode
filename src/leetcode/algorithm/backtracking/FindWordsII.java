@@ -1,103 +1,115 @@
 package leetcode.algorithm.backtracking;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class FindWordsII {
 
-	class Trie {
+   class Trie {
 		
 		class TrieNode {
 			
 			private int N = 26;
+			private String value;
 			private boolean isEnd = false;
 			private TrieNode[] children;
 			
 			public TrieNode() {
 				children = new TrieNode[N];
 			}
+			
 			public void addChild(char c, TrieNode node) {
 				this.children[c - 'a'] = node;
 			}
+			
 			public TrieNode getChild(char c) {
 				return this.children[c - 'a'];
 			}
+			
+			public boolean containsKey(char c) {
+				return this.children[c - 'a'] != null;
+			}
+			
 			public void setEnd() {
 				this.isEnd = true;
 			}
+			
 			public boolean isEnd() {
 				return this.isEnd;
+			}
+			
+			public void setValue(String value) {
+				this.value = value;
+			}
+			
+			public String getValue() {
+				if (this.isEnd()) {
+					return this.value;
+				}
+				return null;
 			}
 		}
 		
 		private TrieNode root;
 		
-		public Trie(char[][] board) {
+		public Trie(String[] words) {
 			this.root = new TrieNode();
+			for (int i = 0; i < words.length; i++) {
+				insert(words[i]);
+			}
+		}
+		
+		public void insert(String word) {
+			TrieNode node = root;
+			for (int i = 0; i < word.length(); i++) {
+				char currChar = word.charAt(i);
+				if (!node.containsKey(currChar))
+					node.addChild(currChar, new TrieNode());
+				node = node.getChild(currChar);
+			}
+			node.setValue(word);
+			node.setEnd();
+		}
+		
+		public List<String> search(char[][] board) {
+			Set<String> resultSet = new HashSet<>();
 			for (int x = 0; x < board.length; x++) {
 				for (int y = 0; y < board[x].length; y++) {
-					boolean[][] visited = new boolean[board.length][board[x].length];
-					visited[x][y] = true;
-					build(board, root, x, y, visited);
-					visited[x][y] = false;
+					boolean visited[][] = new boolean[board.length][board[x].length];
+					searchBoard(root, board, x, y, visited, resultSet);
 				}
 			}
+			return new LinkedList<>(resultSet);
 		}
 		
-		private void build(char[][] board, TrieNode node, int x, int y, boolean[][] visited) {
-			char c = board[x][y];
-			node.addChild(c, new TrieNode());
-			node = node.getChild(c);
-			// upper
-			if (x - 1 >= 0 && !visited[x - 1][y]) {
-				visited[x - 1][y] = true;
-				build(board, node, x - 1, y, visited);
-				visited[x - 1][y] = false;
-			}
-			// lower
-			if (x + 1 < board.length && !visited[x + 1][y]) {
-				visited[x + 1][y] = true;
-				build(board, node, x + 1, y, visited);
-				visited[x + 1][y] = false;
-			}
-			// left
-			if (y - 1 >= 0 && !visited[x][y - 1]) {
-				visited[x][y - 1] = true;
-				build(board, node, x, y - 1, visited);
-				visited[x][y - 1] = false;
-			}
-			// right
-			if (y + 1 < board[x].length && !visited[x][y + 1]) {
-				visited[x][y + 1] = true;
-				build(board, node, x, y + 1, visited);
-				visited[x][y + 1] = false;
-			}
-		}
-		
-		public boolean search(String word) {
-			if (word != null) {
-				TrieNode node = root;
-				for (int i = 0; i < word.length(); i++) {
-					char currChar = word.charAt(i);
-					node = node.getChild(currChar);
-					if (node == null)
-						return false;
+		private void searchBoard(TrieNode node, char[][] board, int x, int y, boolean[][] visited, Set<String> result) {
+			if (x >= 0 && x < board.length && y >= 0 && y < board[0].length 
+					&& !visited[x][y] && node.getChild(board[x][y]) != null) {
+				visited[x][y] = true;
+				node = node.getChild(board[x][y]);
+				if (node.isEnd()) {
+					result.add(node.getValue());
 				}
-				return node != null;
+				// upper
+				searchBoard(node, board, x - 1, y, visited, result);
+				// lower
+				searchBoard(node, board, x + 1, y, visited, result);
+				// left
+				searchBoard(node, board, x, y - 1, visited, result);
+				// right
+				searchBoard(node, board, x, y + 1, visited, result);
+				// reset visited
+				visited[x][y] = false;
 			}
-			return false;
 		}
 		
 	}
 	
-	
 	public List<String> findWords(char[][] board, String[] words) {
-        List<String> result = new ArrayList<>();
-		Trie trie = new Trie(board);
-        for (int i = 0; i < words.length; i++) {
-        	if (trie.search(words[i]))
-        		result.add(words[i]);
-        }
+		Trie trie = new Trie(words);
+		List<String> result = trie.search(board);
         return result;
     }
 	
@@ -137,7 +149,27 @@ public class FindWordsII {
 	
 	public static void testCase4() {
 		char[][] board = {{'a', 'b'}, {'a', 'a'}};
-		String[] words = {"abaa", "aaab", "baaa", "aabc"};
+		String[] words = {"aba", "baa", "bab", "aaab", "aaa", "aaaa", "aaba"};
+		FindWordsII finder = new FindWordsII();
+		List<String> result= finder.findWords(board, words);
+		for (int i = 0; i < result.size(); i++) {
+			System.out.println(result.get(i));
+		}
+	}
+	
+	public static void testCase5() {
+		char[][] board = {{'a', 'a'}};
+		String[] words = {"aa"};
+		FindWordsII finder = new FindWordsII();
+		List<String> result= finder.findWords(board, words);
+		for (int i = 0; i < result.size(); i++) {
+			System.out.println(result.get(i));
+		}
+	}
+
+	public static void testCase6() {
+		char[][] board = {{'a', 'b'}, {'a', 'a'}};
+		String[] words = {"aaab", "aaa"};
 		FindWordsII finder = new FindWordsII();
 		List<String> result= finder.findWords(board, words);
 		for (int i = 0; i < result.size(); i++) {
@@ -150,6 +182,8 @@ public class FindWordsII {
 //		testCase2();
 //		testCase3();
 		testCase4();
+//		testCase5();
+//		testCase6();
 	}
 	
 }
