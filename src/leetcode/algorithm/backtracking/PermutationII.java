@@ -2,48 +2,42 @@ package leetcode.algorithm.backtracking;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class Permutation {
+public class PermutationII {
 
-	List<List<Integer>> res = new ArrayList<List<Integer>>();
+	private List<List<Integer>> res = new ArrayList<List<Integer>>();
 	
 	public void permutation(int index, ArrayList<Integer> nums) {
 		if (index == nums.size()) {
 			res.add(new ArrayList<Integer>(nums));
 		}
+		Map<Integer, Integer> map = new HashMap<Integer, Integer>();
 		for (int i = index; i < nums.size(); i++) {
-			Collections.swap(nums, i, index);
-			permutation(index + 1, nums);
-			// backtracking
-			Collections.swap(nums, i, index);
+			if (!map.containsKey(nums.get(i))) {
+				map.put(nums.get(i), nums.get(i));
+				Collections.swap(nums, i, index);
+				permutation(index + 1, nums);
+				// backtracking
+				Collections.swap(nums, i, index);
+			}
 		}
 	}
 	
-	public List<List<Integer>> permute(int[] nums) {
-		 ArrayList<Integer> numList = new ArrayList<Integer>();
+	public List<List<Integer>> permuteUnique(int[] nums) {
+		ArrayList<Integer> numList = new ArrayList<Integer>();
 		 for (int num : nums)
 			 numList.add(num);
 		 permutation(0, numList);
 		 return res;
 	}
 	
-	
 	public static void testCase1() {
-		List<Integer> a = new ArrayList<>();
-		a.add(1);
-		a.add(2);
-		a.add(3);
-		Collections.swap(a, 0, 2);
-		for (int i = 0; i < a.size(); i++) {
-			System.out.println(a.get(i));
-		}
-	}
-	
-	public static void testCase2() {
-		int[] nums = {1, 2, 3};
-		Permutation solution = new Permutation();
-		List<List<Integer>> res = solution.permute(nums);
+		int[] nums = {1, 1, 2};
+		PermutationII solution = new PermutationII();
+		List<List<Integer>> res = solution.permuteUnique(nums);
 		for (int i = 0; i < res.size(); i++) {
 			for (int j = 0; j < res.get(i).size(); j++) {
 				System.out.print(res.get(i).get(j));
@@ -54,7 +48,6 @@ public class Permutation {
 	}
 	
 	public static void main(String[] args) {
-		testCase2();
+		testCase1();
 	}
-	
 }
