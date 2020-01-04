@@ -13,9 +13,11 @@ public class Combination {
 			combinations.add(new ArrayList<>(combination));
 			return;
 		}
+		// 当前层的搜索只需要关注后面的元素, 不再关心 start 之前的元素, 防止搜索结果重复
 		for (int i = start; i < candidates.length; i++) {
 			if (candidates[i] <= target) {
 				combination.add(candidates[i]);
+				// 下一层仍然从 i 位置开始搜索, 保证了每个元素都可以被无限利用多次
 				combination(target - candidates[i], candidates, i, combination);
 				combination.remove(combination.size() - 1);
 			}

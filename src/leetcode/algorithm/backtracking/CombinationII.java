@@ -11,14 +11,18 @@ public class CombinationII {
 	
 	private void combination(int[] candidates, int target, int start, Stack<Integer> comb) {
 		if (target == 0) {
+			// 此处要保证是深复制, ArrayList的构造函数可以接受Stack类型进行初始化
 			combinations.add(new ArrayList<>(comb));
 			return;
 		}
 		for (int i = start; i < candidates.length; i++) {
+			// 同一层中, 倘若存在重复元素则没必要再向后搜索, 否则会出现重复的结果, 尽管每个元素仍然只被利用了一次
+			// 当然, 这个判断是基于candidates是有序的前提
 			if (i > start && candidates[i] == candidates[i - 1])
 				continue;
 			if (candidates[i] <= target) {
 				comb.add(candidates[i]);
+				// 下一层中从i + 1开始搜索, 从而保证每个元素只被利用一次
 				combination(candidates, target - candidates[i], i + 1, comb);
 				comb.pop();
 			}
