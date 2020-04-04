@@ -3,7 +3,6 @@ package leetcode.parallel.printorder.solution1;
 import leetcode.parallel.printorder.PrintFirst;
 import leetcode.parallel.printorder.PrintSecond;
 import leetcode.parallel.printorder.PrintThird;
-import leetcode.parallel.printorder.solution1.Foo;
 
 public class Test {
 
